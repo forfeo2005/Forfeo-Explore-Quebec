@@ -39,7 +39,7 @@ function App() {
       >
         <Marker position={center} />
       </GoogleMap>
-  ) : <></>
+  ) : <div>Chargement de la carte...</div>
 }
 
 export default React.memo(App)
