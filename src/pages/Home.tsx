@@ -3,7 +3,7 @@ import { useTranslation, Trans } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { FaArrowRight, FaMapMarkerAlt, FaCheck } from 'react-icons/fa';
 
-// Notez les "../" car nous sommes dans le dossier pages/
+// --- ATTENTION : Les chemins ont changé (../) car nous sommes dans le dossier pages ---
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import MapView from '../components/MapView';
