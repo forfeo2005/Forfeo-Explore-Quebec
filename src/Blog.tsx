@@ -1,6 +1,7 @@
 import React from 'react';
-import { Link } from 'react-router-dom'; // Important pour Vite
+import { Link } from 'react-router-dom';
 import { MapPin, ArrowRight } from 'lucide-react';
+import Header from './components/Header'; // <--- On ajoute le menu ICI
 
 const regionsQuebec = [
   {
@@ -49,28 +50,32 @@ const regionsQuebec = [
 
 export default function Blog() {
   return (
-    <div className="container mx-auto px-4 py-12">
-      <h1 className="text-4xl font-bold mb-8 text-center">Explorez le Québec</h1>
+    <>
+      <Header /> {/* Le menu s'affiche en haut de cette page */}
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {regionsQuebec.map((region) => (
-          <div key={region.id} className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
-            <div className="flex items-center mb-3">
-              <MapPin className="text-blue-600 w-5 h-5 mr-2" />
-              <h2 className="text-xl font-bold text-gray-900">{region.title}</h2>
+      <div className="container mx-auto px-4 py-12">
+        <h1 className="text-4xl font-bold mb-8 text-center text-blue-900">Explorez le Québec</h1>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {regionsQuebec.map((region) => (
+            <div key={region.id} className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex items-center mb-3">
+                <MapPin className="text-blue-600 w-5 h-5 mr-2" />
+                <h2 className="text-xl font-bold text-gray-900">{region.title}</h2>
+              </div>
+              <p className="text-gray-600 mb-6 text-sm leading-relaxed">
+                {region.description}
+              </p>
+              <Link 
+                to={region.link} 
+                className="inline-flex items-center text-blue-600 font-semibold text-sm hover:underline tracking-wide uppercase"
+              >
+                EXPLORER <ArrowRight className="w-4 h-4 ml-1" />
+              </Link>
             </div>
-            <p className="text-gray-600 mb-6 text-sm leading-relaxed">
-              {region.description}
-            </p>
-            <Link 
-              to={region.link} 
-              className="inline-flex items-center text-blue-600 font-semibold text-sm hover:underline tracking-wide uppercase"
-            >
-              EXPLORER <ArrowRight className="w-4 h-4 ml-1" />
-            </Link>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
