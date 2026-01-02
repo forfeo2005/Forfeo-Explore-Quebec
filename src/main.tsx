@@ -1,11 +1,14 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
+import { HashRouter } from 'react-router-dom'; // Le composant essentiel pour GitHub Pages
 import App from './App.tsx'
 import './index.css'
-import './i18n'; // <--- C'est la ligne magique qui active les traductions !
+import './i18n';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <App />
+    <HashRouter>
+      <App />
+    </HashRouter>
   </React.StrictMode>,
 )
