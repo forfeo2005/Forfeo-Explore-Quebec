@@ -1,6 +1,6 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import Header from './components/Header'; // J'ai ajouté l'import du Header
+import Header from './components/Header'; // Import du menu
 import Home from './pages/Home';
 import RegionDetail from './pages/RegionDetail';
 import Blog from './Blog'; // Ta page avec la grille des régions
@@ -8,7 +8,7 @@ import Blog from './Blog'; // Ta page avec la grille des régions
 function App() {
   return (
     <div className="flex flex-col min-h-screen">
-      {/* Le Header est placé ICI pour être visible sur toutes les pages */}
+      {/* 1. Le Header est placé ICI pour être visible sur TOUTES les pages */}
       <Header />
 
       <main className="flex-grow">
@@ -22,7 +22,7 @@ function App() {
           {/* Page de détail d'une région */}
           <Route path="/region/:id" element={<RegionDetail />} />
           
-          {/* (Sécurité) Redirection si on utilise l'ancien lien /blog */}
+          {/* (Sécurité) Si un ancien lien utilise /blog, on le redirige vers le détail */}
           <Route path="/blog/:id" element={<RegionDetail />} />
         </Routes>
       </main>
