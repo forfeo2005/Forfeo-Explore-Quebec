@@ -6,24 +6,25 @@ import CookieConsent from './components/CookieConsent';
 // Importation des données
 import { regions } from './data/regions';
 import { categories } from './data/categories';
-// Assurez-vous d'avoir créé src/data/places.ts (voir étape précédente)
 import { places } from './data/places'; 
+// Importation des icônes et animations
 import { FaArrowRight, FaMapMarkerAlt, FaCheck } from 'react-icons/fa';
 import { motion } from 'framer-motion';
+// Importation pour la traduction
+import { useTranslation, Trans } from 'react-i18next';
 
 function App() {
+  const { t } = useTranslation(); // Le hook magique pour traduire
+  
   // États principaux
   const [selectedRegion, setSelectedRegion] = useState(regions[0]);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
-  // LOGIQUE DE FILTRAGE (Le cerveau qui manquait)
+  // LOGIQUE DE FILTRAGE
   const filteredPlaces = useMemo(() => {
     return places.filter(place => {
-      // 1. Est-ce que le lieu est dans la région sélectionnée ?
       const isCorrectRegion = place.regionId === selectedRegion.id;
-      // 2. Si une catégorie est active, est-ce que le lieu correspond ?
       const isCorrectCategory = activeCategory ? place.category === activeCategory : true;
-      
       return isCorrectRegion && isCorrectCategory;
     });
   }, [selectedRegion, activeCategory]);
@@ -31,9 +32,9 @@ function App() {
   // Gestion du clic sur un onglet
   const handleCategoryClick = (catId: string) => {
     if (activeCategory === catId) {
-      setActiveCategory(null); // Désactiver si on clique deux fois
+      setActiveCategory(null);
     } else {
-      setActiveCategory(catId); // Activer la catégorie
+      setActiveCategory(catId);
     }
   };
 
@@ -53,7 +54,8 @@ function App() {
             transition={{ duration: 0.8 }}
             className="text-4xl md:text-6xl font-extrabold mb-6 leading-tight"
           >
-            Votre Aventure au <span className="text-yellow-400">Québec</span> Commence Ici
+            {/* Utilisation de Trans pour garder le style jaune sur le mot Québec */}
+            <Trans i18nKey="hero_title" components={{ 1: <span className="text-yellow-400" /> }} />
           </motion.h2>
           <motion.p 
             initial={{ opacity: 0 }}
@@ -61,7 +63,7 @@ function App() {
             transition={{ delay: 0.3, duration: 0.8 }}
             className="text-xl text-blue-100 mb-8 font-light"
           >
-            Explorez les 17 régions touristiques, de la métropole vibrante aux grands espaces sauvages.
+            {t('hero_subtitle')}
           </motion.p>
           <motion.button 
             whileHover={{ scale: 1.05 }}
@@ -69,7 +71,7 @@ function App() {
             onClick={() => document.getElementById('regions')?.scrollIntoView({ behavior: 'smooth' })}
             className="bg-white text-blue-900 font-bold py-3 px-8 rounded-full shadow-lg hover:bg-yellow-400 hover:text-blue-900 transition-colors"
           >
-            Commencer l'exploration
+            {t('cta_explore')}
           </motion.button>
         </div>
       </section>
@@ -77,8 +79,8 @@ function App() {
       {/* --- SECTION SÉLECTEUR DE RÉGIONS --- */}
       <section id="regions" className="py-16 container mx-auto px-4">
         <div className="text-center mb-12">
-          <h3 className="text-3xl font-bold text-slate-800">Choisissez votre destination</h3>
-          <p className="text-slate-500 mt-2">Cliquez sur une région pour mettre à jour la carte</p>
+          <h3 className="text-3xl font-bold text-slate-800">{t('regions_title')}</h3>
+          <p className="text-slate-500 mt-2">{t('regions_subtitle')}</p>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -88,7 +90,7 @@ function App() {
               whileHover={{ y: -5 }}
               onClick={() => {
                 setSelectedRegion(region);
-                setActiveCategory(null); // Reset des filtres au changement de région
+                setActiveCategory(null);
                 document.getElementById('carte')?.scrollIntoView({ behavior: 'smooth' });
               }}
               className={`cursor-pointer bg-white p-6 rounded-xl border-2 transition-all shadow-sm hover:shadow-xl ${
@@ -105,26 +107,26 @@ function App() {
                 {region.description || `Découvrez les merveilles de ${region.nom}.`}
               </p>
               <div className="text-blue-600 font-bold text-sm flex items-center mt-auto uppercase tracking-wide">
-                Voir sur la carte <FaArrowRight className="ml-2" />
+                {t('nav_map')} <FaArrowRight className="ml-2" />
               </div>
             </motion.div>
           ))}
         </div>
       </section>
 
-      {/* --- SECTION CARTE INTERACTIVE & CATÉGORIES --- */}
+      {/* --- SECTION CARTE INTERACTIVE --- */}
       <section id="carte" className="bg-slate-100 py-12">
         <div className="container mx-auto px-4">
           <div className="bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col lg:flex-row h-[700px] border border-slate-200">
             
-            {/* Sidebar Gauche: Infos & Catégories */}
+            {/* Sidebar Gauche */}
             <div className="w-full lg:w-1/3 p-6 overflow-y-auto border-r border-slate-200 bg-white z-10">
               <div className="mb-6">
-                <span className="text-xs font-bold text-blue-400 uppercase tracking-wider">Région Active</span>
+                <span className="text-xs font-bold text-blue-400 uppercase tracking-wider">{t('map_active_region')}</span>
                 <h2 className="text-2xl font-bold text-blue-900 mt-1">{selectedRegion.nom}</h2>
               </div>
 
-              <h3 className="font-bold text-slate-700 mb-4 uppercase tracking-wider text-sm">Filtrer par activité</h3>
+              <h3 className="font-bold text-slate-700 mb-4 uppercase tracking-wider text-sm">{t('filter_title')}</h3>
               <div className="space-y-3">
                 {categories.map((cat) => (
                   <button 
@@ -154,18 +156,17 @@ function App() {
                 ))}
               </div>
 
-              {/* Résumé des résultats */}
+              {/* Résumé des résultats (Traduit avec count) */}
               <div className="mt-6 p-4 bg-yellow-50 border border-yellow-100 rounded text-sm text-yellow-800">
-                <strong>{filteredPlaces.length} lieux trouvés</strong>
+                <strong>{t('places_found', { count: filteredPlaces.length })}</strong>
                 <p className="text-xs mt-1">
-                  {activeCategory ? "Dans la catégorie sélectionnée." : "Sélectionnez une catégorie pour filtrer."}
+                   {activeCategory ? "" : t('regions_subtitle')}
                 </p>
               </div>
             </div>
 
-            {/* Carte Google Maps */}
+            {/* Carte */}
             <div className="w-full lg:w-2/3 relative h-full">
-              {/* On passe les lieux filtrés à la carte */}
               <MapView center={selectedRegion.centre} places={filteredPlaces} />
             </div>
             
