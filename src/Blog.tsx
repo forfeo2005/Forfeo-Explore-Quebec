@@ -7,43 +7,43 @@ const regionsQuebec = [
     id: "capitale-nationale",
     title: "Capitale-Nationale",
     description: "Le cœur historique du Québec, mêlant patrimoine mondial et nature grandiose.",
-    link: "/blog/capitale-nationale"
+    link: "/region/capitale-nationale"
   },
   {
     id: "montreal",
     title: "Montréal",
     description: "La métropole vibrante, reconnue pour sa culture, sa gastronomie et ses festivals.",
-    link: "/blog/montreal"
+    link: "/region/montreal"
   },
   {
     id: "gaspesie",
     title: "Gaspésie–Îles-de-la-Madeleine",
     description: "Une péninsule légendaire offrant mer, montagnes et le célèbre Rocher Percé.",
-    link: "/blog/gaspesie"
+    link: "/region/gaspesie"
   },
   {
     id: "laurentides",
     title: "Laurentides",
     description: "La destination de villégiature par excellence avec ses lacs et ses stations de ski.",
-    link: "/blog/laurentides"
+    link: "/region/laurentides"
   },
   {
     id: "outaouais",
     title: "Outaouais",
     description: "Porte d’entrée de l’ouest québécois, riche en forêts et musées nationaux.",
-    link: "/blog/outaouais"
+    link: "/region/outaouais"
   },
   {
     id: "saguenay",
     title: "Saguenay–Lac-Saint-Jean",
     description: "Le royaume du fjord et du bleuet, offrant des paysages démesurés.",
-    link: "/blog/saguenay"
+    link: "/region/saguenay"
   },
   {
     id: "charlevoix",
     title: "Charlevoix",
     description: "Entre fleuve et montagnes, une région inspirante pour les artistes et gourmets.",
-    link: "/blog/charlevoix"
+    link: "/region/charlevoix"
   }
 ];
 
