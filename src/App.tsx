@@ -1,16 +1,16 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import Home from './pages/Home'; // Importation de la page que nous venons de créer
+import Home from './pages/Home';
+import RegionDetail from './pages/RegionDetail'; // <--- Importation de la nouvelle page
 
-// C'est ici que tu ajouteras tes futures pages (Blog, Contact, etc.)
 function App() {
   return (
     <Routes>
-      {/* Route par défaut : affiche Home quand on est sur la racine "/" */}
+      {/* Route Accueil */}
       <Route path="/" element={<Home />} />
       
-      {/* Exemple pour le futur (ne décommente pas encore) : */}
-      {/* <Route path="/blog" element={<Blog />} /> */}
+      {/* Route Dynamique : "id" changera selon la région cliquée */}
+      <Route path="/region/:id" element={<RegionDetail />} />
     </Routes>
   );
 }
