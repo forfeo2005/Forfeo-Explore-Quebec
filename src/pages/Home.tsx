@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { 
-  FaArrowRight, FaUsers, FaMapMarkedAlt, FaStar, 
-  FaTaxi, FaHotel, FaSubway, FaUtensils, FaHiking, FaLandmark, FaCloudSun, FaSearch, FaCar
+  FaArrowRight, FaMapMarkedAlt, 
+  FaTaxi, FaHotel, FaSubway, FaUtensils, FaHiking, FaLandmark, FaCloudSun, FaCar
 } from 'react-icons/fa'; 
 import Footer from '../components/Footer'; 
+import GoogleSearchBar from '../components/GoogleSearchBar'; // Import du nouveau composant
 
 export default function Home() {
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
@@ -27,16 +28,6 @@ export default function Home() {
       .catch(err => console.error("Erreur météo", err));
   }, []);
 
-  // Fonction de recherche d'adresse
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (address) {
-      // On met à jour la carte avec l'adresse + le service actif
-      const serviceQuery = services.find(s => s.id === activeTab)?.label || '';
-      setMapQuery(`${serviceQuery}+near+${address}`);
-    }
-  };
-
   const services = [
     { id: 'places', label: 'Lieux', icon: FaLandmark, query: 'Tourist+attractions' },
     { id: 'taxi', label: 'Taxis', icon: FaTaxi, query: 'Taxi' },
@@ -46,13 +37,30 @@ export default function Home() {
     { id: 'transport', label: 'Transports', icon: FaSubway, query: 'Transit+station' },
   ];
 
+  // Nouvelle fonction de recherche connectée au composant intelligent
+  const handleSmartSearch = (newAddress: string) => {
+    setAddress(newAddress);
+    if (newAddress) {
+      // On cherche le service actif (ex: Restaurants) PRÈS de la nouvelle adresse
+      const serviceQuery = services.find(s => s.id === activeTab)?.query || 'Tourist+attractions';
+      setMapQuery(`${serviceQuery}+near+${newAddress}`);
+    }
+  };
+
+  // Fonction pour changer d'onglet (Lieux, Taxi, etc.)
+  const handleTabChange = (serviceId: string, serviceQuery: string) => {
+    setActiveTab(serviceId);
+    // Si on a déjà une adresse, on cherche près de là, sinon on cherche à Québec par défaut
+    const location = address ? `near+${address}` : 'in+Quebec+City';
+    setMapQuery(`${serviceQuery}+${location}`);
+  };
+
   return (
     <div className="bg-gray-50 min-h-screen flex flex-col font-sans">
       
       {/* SECTION HÉROS */}
       <section className="bg-blue-900 text-white py-20 px-4 text-center relative overflow-hidden">
         <div className="relative z-10 max-w-5xl mx-auto">
-          {/* TEXTE EXACT DEMANDÉ */}
           <h1 className="text-5xl md:text-6xl font-extrabold mb-6 tracking-tight drop-shadow-md">
             Bienvenue sur <span className="text-yellow-400">Forfeo Explore</span>
           </h1>
@@ -84,7 +92,7 @@ export default function Home() {
         {/* BARRE DE RECHERCHE + MÉTÉO */}
         <div className="flex flex-col md:flex-row justify-center items-center gap-6 mb-10">
           {/* Widget Météo */}
-          <div className="bg-white px-6 py-3 rounded-full shadow-md flex items-center border border-blue-100">
+          <div className="bg-white px-6 py-3 rounded-full shadow-md flex items-center border border-blue-100 min-w-[200px]">
             <FaCloudSun className="text-yellow-500 text-3xl mr-3" />
             <div>
               <p className="text-xs text-gray-500 uppercase font-bold">Météo Québec</p>
@@ -92,20 +100,9 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Recherche Adresse */}
-          <form onSubmit={handleSearch} className="relative w-full max-w-lg">
-            <input 
-              type="text" 
-              placeholder="Entrez votre adresse (ex: 123 Rue Principale)..."
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              className="w-full pl-12 pr-4 py-4 rounded-full border-2 border-gray-200 focus:border-blue-500 focus:outline-none shadow-sm text-gray-700"
-            />
-            <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
-            <button type="submit" className="absolute right-2 top-2 bottom-2 bg-blue-600 text-white px-6 rounded-full font-bold hover:bg-blue-700">
-              Voir
-            </button>
-          </form>
+          {/* NOUVEAU : Composant de Recherche Intelligent */}
+          <GoogleSearchBar onSearch={handleSmartSearch} />
+          
         </div>
 
         {/* ONGLETS SERVICES */}
@@ -113,12 +110,7 @@ export default function Home() {
            {services.map((service) => (
              <button
                key={service.id}
-               onClick={() => {
-                 setActiveTab(service.id);
-                 // Si on a une adresse, on cherche "Service près de Adresse", sinon "Service à Québec"
-                 const location = address ? `near+${address}` : 'in+Quebec+City';
-                 setMapQuery(`${service.query}+${location}`);
-               }}
+               onClick={() => handleTabChange(service.id, service.query)}
                className={`flex items-center px-5 py-2 rounded-full shadow-sm border transition-all ${
                  activeTab === service.id 
                  ? 'bg-blue-900 text-white border-blue-900 shadow-md ring-2 ring-blue-300' 
@@ -151,18 +143,20 @@ export default function Home() {
                style={{ border: 0 }}
                loading="lazy"
                allowFullScreen
+               // Utilisation de l'URL Embed API standard et sécurisée
                src={`https://www.google.com/maps/embed/v1/search?key=${apiKey}&q=${mapQuery}&zoom=13`}
              ></iframe>
            ) : (
              <div className="flex flex-col items-center justify-center h-full bg-gray-100 text-gray-500 p-8 text-center">
                <FaMapMarkedAlt size={48} className="mb-4 text-gray-400" />
                <p className="font-bold text-lg text-red-500">Clé API manquante.</p>
+               <p className="text-sm mt-2">Ajoutez VITE_GOOGLE_MAPS_API_KEY dans votre fichier .env</p>
              </div>
            )}
         </div>
       </section>
 
-      {/* BANNIÈRE COOKIES (Pour l'Avocat - Loi 25) */}
+      {/* BANNIÈRE COOKIES */}
       <div className="fixed bottom-0 w-full bg-gray-900 text-white p-4 text-xs z-50 flex justify-between items-center opacity-95">
         <p>Ce site utilise des cookies pour améliorer votre expérience conformément à la Loi 25.</p>
         <button className="bg-yellow-400 text-blue-900 px-4 py-1 rounded font-bold ml-4 hover:bg-yellow-300" onClick={(e) => e.currentTarget.parentElement!.style.display = 'none'}>
