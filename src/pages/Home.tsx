@@ -2,8 +2,8 @@ import React, { useState, useMemo } from 'react';
 import { useTranslation, Trans } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { FaArrowRight, FaMapMarkerAlt, FaCheck } from 'react-icons/fa';
+import { Link } from 'react-router-dom'; // <--- Import pour la navigation
 
-// --- ATTENTION : Les chemins ont changé (../) car nous sommes dans le dossier pages ---
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import MapView from '../components/MapView';
@@ -61,7 +61,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* --- RÉGIONS --- */}
+      {/* --- RÉGIONS (AVEC LIENS) --- */}
       <section id="regions" className="py-16 container mx-auto px-4">
         <div className="text-center mb-12">
           <h3 className="text-3xl font-bold text-slate-800">{t('regions_title')}</h3>
@@ -70,77 +70,47 @@ export default function Home() {
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {regions.map((region) => (
-            <motion.div 
-              key={region.id}
-              whileHover={{ y: -5 }}
-              onClick={() => {
-                setSelectedRegion(region);
-                setActiveCategory(null);
-                document.getElementById('carte')?.scrollIntoView({ behavior: 'smooth' });
-              }}
-              className={`cursor-pointer bg-white p-6 rounded-xl border-2 transition-all shadow-sm hover:shadow-xl ${
-                selectedRegion.id === region.id ? 'border-blue-500 ring-2 ring-blue-100 bg-blue-50' : 'border-transparent hover:border-blue-300'
-              }`}
-            >
-              <h4 className="text-xl font-bold text-slate-800 mb-2 flex items-center">
-                <FaMapMarkerAlt className="text-blue-500 mr-2" />
-                {region.nom}
-              </h4>
-              <p className="text-slate-600 text-sm mb-4 line-clamp-2">
-                {t(`reg_${region.id}_desc`, region.description)}
-              </p>
-              <div className="text-blue-600 font-bold text-sm flex items-center mt-auto uppercase tracking-wide">
-                {t('nav_map')} <FaArrowRight className="ml-2" />
-              </div>
-            </motion.div>
+            // C'est ici que la magie opère : Link vers la page de détails
+            <Link to={`/region/${region.id}`} key={region.id} className="block h-full">
+              <motion.div 
+                whileHover={{ y: -5 }}
+                className="cursor-pointer bg-white p-6 rounded-xl border-2 border-transparent hover:border-blue-300 transition-all shadow-sm hover:shadow-xl h-full flex flex-col"
+              >
+                <h4 className="text-xl font-bold text-slate-800 mb-2 flex items-center">
+                  <FaMapMarkerAlt className="text-blue-500 mr-2" />
+                  {region.nom}
+                </h4>
+                <p className="text-slate-600 text-sm mb-4 line-clamp-2 flex-grow">
+                  {t(`reg_${region.id}_desc`, region.description)}
+                </p>
+                <div className="text-blue-600 font-bold text-sm flex items-center mt-auto uppercase tracking-wide">
+                  Explorer <FaArrowRight className="ml-2" />
+                </div>
+              </motion.div>
+            </Link>
           ))}
         </div>
       </section>
 
-      {/* --- CARTE & CATÉGORIES --- */}
+      {/* --- CARTE & CATÉGORIES (Section Carte conservée en dessous) --- */}
       <section id="carte" className="bg-slate-100 py-12">
         <div className="container mx-auto px-4">
-          <div className="bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col lg:flex-row h-[700px] border border-slate-200">
-            <div className="w-full lg:w-1/3 p-6 overflow-y-auto border-r border-slate-200 bg-white z-10">
-              <div className="mb-6">
-                <span className="text-xs font-bold text-blue-400 uppercase tracking-wider">{t('map_active_region')}</span>
-                <h2 className="text-2xl font-bold text-blue-900 mt-1">{selectedRegion.nom}</h2>
-              </div>
-
-              <h3 className="font-bold text-slate-700 mb-4 uppercase tracking-wider text-sm">{t('filter_title')}</h3>
-              <div className="space-y-3">
-                {categories.map((cat) => (
-                  <button 
-                    key={cat.id} 
-                    onClick={() => handleCategoryClick(cat.id)}
-                    className={`w-full flex items-center p-3 rounded-lg transition border text-left group ${
-                      activeCategory === cat.id ? 'bg-blue-600 text-white border-blue-600 shadow-md' : 'hover:bg-slate-50 border-transparent hover:border-slate-200 text-slate-700'
-                    }`}
-                  >
-                    <div className={`p-3 rounded-lg mr-4 shadow-sm transition-transform ${activeCategory === cat.id ? 'bg-white/20 text-white' : (cat.color || 'bg-gray-500 text-white')}`}>
-                      <cat.icone className="text-lg" />
-                    </div>
-                    <div className="flex-1">
-                      <h4 className={`font-bold text-sm ${activeCategory === cat.id ? 'text-white' : 'text-slate-800'}`}>
-                        {t(`cat_${cat.id}_name`, cat.nom)}
-                      </h4>
-                      <p className={`text-xs mt-0.5 ${activeCategory === cat.id ? 'text-blue-100' : 'text-slate-500'}`}>
-                        {t(`cat_${cat.id}_desc`, cat.sous_categories.join(', '))}
-                      </p>
-                    </div>
-                    {activeCategory === cat.id && <FaCheck className="text-white" />}
-                  </button>
-                ))}
-              </div>
-
-              <div className="mt-6 p-4 bg-yellow-50 border border-yellow-100 rounded text-sm text-yellow-800">
-                <strong>{t('places_found', { count: filteredPlaces.length })}</strong>
-              </div>
-            </div>
-
-            <div className="w-full lg:w-2/3 relative h-full">
-              <MapView center={selectedRegion.centre} places={filteredPlaces} />
-            </div>
+          <h3 className="text-2xl font-bold text-center mb-8 text-slate-800">Carte Interactive Globale</h3>
+          <div className="bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col lg:flex-row h-[600px] border border-slate-200">
+             <div className="w-full lg:w-1/3 p-6 overflow-y-auto border-r border-slate-200 bg-white z-10">
+                 <div className="mb-4"><h3 className="font-bold">{t('filter_title')}</h3></div>
+                 {/* Liste simplifiée pour la démo */}
+                 <div className="space-y-2">
+                    {categories.map(cat => (
+                        <button key={cat.id} onClick={() => handleCategoryClick(cat.id)} className={`w-full text-left p-2 rounded ${activeCategory === cat.id ? 'bg-blue-100 text-blue-800' : 'hover:bg-slate-50'}`}>
+                            {cat.nom}
+                        </button>
+                    ))}
+                 </div>
+             </div>
+             <div className="w-full lg:w-2/3 relative h-full">
+                <MapView center={selectedRegion.centre} places={filteredPlaces} />
+             </div>
           </div>
         </div>
       </section>
