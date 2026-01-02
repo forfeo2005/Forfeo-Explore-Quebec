@@ -1,21 +1,32 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
+import Header from './components/Header'; // J'ai ajouté l'import du Header
 import Home from './pages/Home';
 import RegionDetail from './pages/RegionDetail';
-import Blog from './Blog'; // Ton fichier avec la grille
+import Blog from './Blog'; // Ta page avec la grille des régions
 
 function App() {
   return (
-    <Routes>
-      <Route path="/" element={<Home />} />
-      
-      {/* 👇 CORRECTION ICI : J'ai changé "/blog" par "/regions" pour que ton menu marche ! */}
-      <Route path="/regions" element={<Blog />} />
+    <div className="flex flex-col min-h-screen">
+      {/* Le Header est placé ICI pour être visible sur toutes les pages */}
+      <Header />
 
-      {/* Routes pour les détails (je garde les deux options pour être sûr) */}
-      <Route path="/region/:id" element={<RegionDetail />} />
-      <Route path="/blog/:id" element={<RegionDetail />} />
-    </Routes>
+      <main className="flex-grow">
+        <Routes>
+          {/* Page d'accueil */}
+          <Route path="/" element={<Home />} />
+          
+          {/* Page qui liste toutes les régions (La grille) */}
+          <Route path="/regions" element={<Blog />} />
+
+          {/* Page de détail d'une région */}
+          <Route path="/region/:id" element={<RegionDetail />} />
+          
+          {/* (Sécurité) Redirection si on utilise l'ancien lien /blog */}
+          <Route path="/blog/:id" element={<RegionDetail />} />
+        </Routes>
+      </main>
+    </div>
   );
 }
 
