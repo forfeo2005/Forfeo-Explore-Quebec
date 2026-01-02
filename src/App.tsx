@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import MapView from './components/MapView';
@@ -6,23 +6,44 @@ import CookieConsent from './components/CookieConsent';
 // Importation des données
 import { regions } from './data/regions';
 import { categories } from './data/categories';
-// Importation des icônes et animations
-import { FaArrowRight, FaMapMarkerAlt } from 'react-icons/fa';
+// Assurez-vous d'avoir créé src/data/places.ts (voir étape précédente)
+import { places } from './data/places'; 
+import { FaArrowRight, FaMapMarkerAlt, FaCheck } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 
 function App() {
-  // État pour gérer la région sélectionnée (par défaut : Capitale-Nationale ou la 1ère de la liste)
+  // États principaux
   const [selectedRegion, setSelectedRegion] = useState(regions[0]);
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+
+  // LOGIQUE DE FILTRAGE (Le cerveau qui manquait)
+  const filteredPlaces = useMemo(() => {
+    return places.filter(place => {
+      // 1. Est-ce que le lieu est dans la région sélectionnée ?
+      const isCorrectRegion = place.regionId === selectedRegion.id;
+      // 2. Si une catégorie est active, est-ce que le lieu correspond ?
+      const isCorrectCategory = activeCategory ? place.category === activeCategory : true;
+      
+      return isCorrectRegion && isCorrectCategory;
+    });
+  }, [selectedRegion, activeCategory]);
+
+  // Gestion du clic sur un onglet
+  const handleCategoryClick = (catId: string) => {
+    if (activeCategory === catId) {
+      setActiveCategory(null); // Désactiver si on clique deux fois
+    } else {
+      setActiveCategory(catId); // Activer la catégorie
+    }
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-50 font-sans">
       <Header />
 
-      {/* --- SECTION HÉROS (Design "Flashy" & Moderne ) --- */}
+      {/* --- SECTION HÉROS --- */}
       <section className="relative bg-blue-900 text-white py-20 px-4 text-center overflow-hidden">
-        {/* Dégradé de fond immersif */}
         <div className="absolute inset-0 bg-gradient-to-br from-blue-800 via-blue-700 to-indigo-900 z-0"></div>
-        {/* Motif subtil en arrière-plan */}
         <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
         
         <div className="relative z-10 max-w-4xl mx-auto">
@@ -53,11 +74,11 @@ function App() {
         </div>
       </section>
 
-      {/* --- SECTION SÉLECTEUR DE RÉGIONS  --- */}
+      {/* --- SECTION SÉLECTEUR DE RÉGIONS --- */}
       <section id="regions" className="py-16 container mx-auto px-4">
         <div className="text-center mb-12">
           <h3 className="text-3xl font-bold text-slate-800">Choisissez votre destination</h3>
-          <p className="text-slate-500 mt-2">Cliquez sur une région pour la voir sur la carte</p>
+          <p className="text-slate-500 mt-2">Cliquez sur une région pour mettre à jour la carte</p>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -67,6 +88,7 @@ function App() {
               whileHover={{ y: -5 }}
               onClick={() => {
                 setSelectedRegion(region);
+                setActiveCategory(null); // Reset des filtres au changement de région
                 document.getElementById('carte')?.scrollIntoView({ behavior: 'smooth' });
               }}
               className={`cursor-pointer bg-white p-6 rounded-xl border-2 transition-all shadow-sm hover:shadow-xl ${
@@ -79,7 +101,6 @@ function App() {
                 <FaMapMarkerAlt className="text-blue-500 mr-2" />
                 {region.nom}
               </h4>
-              {/* Affichage de la description ajoutée dans regions.ts */}
               <p className="text-slate-600 text-sm mb-4 line-clamp-2">
                 {region.description || `Découvrez les merveilles de ${region.nom}.`}
               </p>
@@ -91,55 +112,68 @@ function App() {
         </div>
       </section>
 
-      {/* --- SECTION CARTE INTERACTIVE & CATÉGORIES [cite: 82, 103] --- */}
+      {/* --- SECTION CARTE INTERACTIVE & CATÉGORIES --- */}
       <section id="carte" className="bg-slate-100 py-12">
         <div className="container mx-auto px-4">
           <div className="bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col lg:flex-row h-[700px] border border-slate-200">
             
             {/* Sidebar Gauche: Infos & Catégories */}
             <div className="w-full lg:w-1/3 p-6 overflow-y-auto border-r border-slate-200 bg-white z-10">
-              <div className="mb-8 p-4 bg-blue-50 rounded-lg border border-blue-100">
+              <div className="mb-6">
                 <span className="text-xs font-bold text-blue-400 uppercase tracking-wider">Région Active</span>
                 <h2 className="text-2xl font-bold text-blue-900 mt-1">{selectedRegion.nom}</h2>
-                <div className="flex flex-wrap gap-2 mt-3">
-                   {selectedRegion.villes.map(ville => (
-                     <span key={ville} className="bg-white text-blue-800 text-xs px-2 py-1 rounded shadow-sm border border-blue-100">{ville}</span>
-                   ))}
-                </div>
               </div>
 
-              <h3 className="font-bold text-slate-700 mb-4 uppercase tracking-wider text-sm">Services Disponibles</h3>
+              <h3 className="font-bold text-slate-700 mb-4 uppercase tracking-wider text-sm">Filtrer par activité</h3>
               <div className="space-y-3">
                 {categories.map((cat) => (
-                  <div key={cat.id} className="flex items-center p-3 rounded-lg hover:bg-slate-50 transition border border-transparent hover:border-slate-200 cursor-default group">
-                    <div className={`p-3 rounded-lg text-white mr-4 shadow-sm group-hover:scale-110 transition-transform ${cat.color || 'bg-gray-500'}`}>
+                  <button 
+                    key={cat.id} 
+                    onClick={() => handleCategoryClick(cat.id)}
+                    className={`w-full flex items-center p-3 rounded-lg transition border text-left group ${
+                      activeCategory === cat.id 
+                        ? 'bg-blue-600 text-white border-blue-600 shadow-md' 
+                        : 'hover:bg-slate-50 border-transparent hover:border-slate-200 text-slate-700'
+                    }`}
+                  >
+                    <div className={`p-3 rounded-lg mr-4 shadow-sm transition-transform ${
+                      activeCategory === cat.id ? 'bg-white/20 text-white' : (cat.color || 'bg-gray-500 text-white')
+                    }`}>
                       <cat.icone className="text-lg" />
                     </div>
-                    <div>
-                      <h4 className="font-bold text-slate-800 text-sm">{cat.nom}</h4>
-                      <p className="text-xs text-slate-500 mt-0.5">
-                        {cat.sous_categories.join(', ')}
+                    <div className="flex-1">
+                      <h4 className={`font-bold text-sm ${activeCategory === cat.id ? 'text-white' : 'text-slate-800'}`}>
+                        {cat.nom}
+                      </h4>
+                      <p className={`text-xs mt-0.5 ${activeCategory === cat.id ? 'text-blue-100' : 'text-slate-500'}`}>
+                        {cat.sous_categories.slice(0, 3).join(', ')}...
                       </p>
                     </div>
-                  </div>
+                    {activeCategory === cat.id && <FaCheck className="text-white" />}
+                  </button>
                 ))}
+              </div>
+
+              {/* Résumé des résultats */}
+              <div className="mt-6 p-4 bg-yellow-50 border border-yellow-100 rounded text-sm text-yellow-800">
+                <strong>{filteredPlaces.length} lieux trouvés</strong>
+                <p className="text-xs mt-1">
+                  {activeCategory ? "Dans la catégorie sélectionnée." : "Sélectionnez une catégorie pour filtrer."}
+                </p>
               </div>
             </div>
 
             {/* Carte Google Maps */}
             <div className="w-full lg:w-2/3 relative h-full">
-              {/* On passe le centre de la région sélectionnée au composant MapView */}
-              <MapView center={selectedRegion.centre} />
+              {/* On passe les lieux filtrés à la carte */}
+              <MapView center={selectedRegion.centre} places={filteredPlaces} />
             </div>
             
           </div>
         </div>
       </section>
 
-      {/* Consentement aux Cookies  */}
       <CookieConsent />
-      
-      {/* Pied de page [cite: 116] */}
       <Footer />
     </div>
   );
