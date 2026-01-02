@@ -1,11 +1,26 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { FaMapMarkedAlt, FaBars, FaTimes, FaGlobe, FaChevronDown } from 'react-icons/fa';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
   const [currentLang, setCurrentLang] = useState('FR');
+  const navigate = useNavigate();
+
+  // Fonction pour aller à l'accueil et scroller vers la carte
+  const goToMap = (e: React.MouseEvent) => {
+    e.preventDefault();
+    navigate('/');
+    // Petit délai pour laisser le temps à la page d'accueil de charger
+    setTimeout(() => {
+      const carteSection = document.getElementById('carte');
+      if (carteSection) {
+        carteSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 100);
+    setIsMenuOpen(false);
+  };
 
   const languages = [
     { code: 'FR', label: 'Français' },
@@ -33,8 +48,11 @@ export default function Header() {
         <nav className="hidden md:flex items-center space-x-8">
           <Link to="/" className="hover:text-yellow-300 font-medium transition-colors">Accueil</Link>
           <Link to="/regions" className="hover:text-yellow-300 font-medium transition-colors">Régions</Link>
-          {/* Lien vers l'ancre #carte sur la page d'accueil */}
-          <a href="/#carte" className="hover:text-yellow-300 font-medium transition-colors">Carte Interactive</a>
+          
+          {/* CORRECTION DU LIEN CARTE : On utilise le bouton intelligent */}
+          <button onClick={goToMap} className="hover:text-yellow-300 font-medium transition-colors focus:outline-none">
+            Carte Interactive
+          </button>
           
           {/* SÉLECTEUR DE LANGUE */}
           <div className="relative">
@@ -47,7 +65,6 @@ export default function Header() {
               <FaChevronDown size={10} />
             </button>
 
-            {/* Menu Déroulant */}
             {isLangMenuOpen && (
               <div className="absolute right-0 mt-2 w-40 bg-white text-gray-800 rounded-lg shadow-xl py-2 border border-gray-100">
                 {languages.map((lang) => (
@@ -67,18 +84,18 @@ export default function Header() {
           </div>
         </nav>
 
-        {/* MENU MOBILE (Hamburger) */}
+        {/* MENU MOBILE */}
         <button className="md:hidden" onClick={() => setIsMenuOpen(!isMenuOpen)}>
           {isMenuOpen ? <FaTimes size={28} /> : <FaBars size={28} />}
         </button>
       </div>
 
-      {/* LISTE MENU MOBILE (Ouvert) */}
+      {/* LISTE MENU MOBILE */}
       {isMenuOpen && (
         <div className="md:hidden bg-blue-900 border-t border-blue-800 p-4 space-y-4">
           <Link to="/" className="block text-lg hover:text-yellow-300" onClick={() => setIsMenuOpen(false)}>Accueil</Link>
           <Link to="/regions" className="block text-lg hover:text-yellow-300" onClick={() => setIsMenuOpen(false)}>Régions</Link>
-          <a href="/#carte" className="block text-lg hover:text-yellow-300" onClick={() => setIsMenuOpen(false)}>Carte</a>
+          <button onClick={goToMap} className="block text-lg hover:text-yellow-300 text-left w-full">Carte Interactive</button>
           
           {/* Langues Mobile */}
           <div className="pt-4 border-t border-blue-800">
