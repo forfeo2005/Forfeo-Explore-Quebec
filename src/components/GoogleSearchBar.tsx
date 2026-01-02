@@ -1,63 +1,66 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { FaSearch } from 'react-icons/fa';
 
-// Cette interface permet d'éviter les erreurs TypeScript si window.google n'est pas encore défini
+// Cette interface permet d'éviter les erreurs TypeScript
 declare global {
   interface Window {
     google: any;
   }
 }
 
-export default function GoogleSearchBar() {
+interface Props {
+  onSearch: (address: string) => void;
+}
+
+export default function GoogleSearchBar({ onSearch }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [address, setAddress] = useState('');
+  const [inputValue, setInputValue] = useState('');
 
   useEffect(() => {
-    // Vérification que l'API Google est bien chargée
-    if (!window.google || !window.google.maps || !window.google.maps.places) {
-      console.error("Google Maps API pas encore chargée");
-      return;
-    }
+    // Si l'API n'est pas chargée, on ne fait rien
+    if (!window.google || !window.google.maps || !window.google.maps.places) return;
 
-    if (inputRef.current) {
-      const options = {
-        componentRestrictions: { country: "ca" }, // Limite au Canada
-        fields: ["address_components", "geometry", "icon", "name"],
-        types: ["address"],
-      };
+    const options = {
+      componentRestrictions: { country: "ca" }, // Limite au Canada
+      fields: ["formatted_address", "geometry", "name"], // On récupère l'adresse formatée
+      types: ["address"], // On cherche des adresses précises
+    };
 
-      const autocomplete = new window.google.maps.places.Autocomplete(inputRef.current, options);
+    const autocomplete = new window.google.maps.places.Autocomplete(inputRef.current, options);
 
-      // Écouteur quand l'utilisateur sélectionne une adresse
-      autocomplete.addListener("place_changed", () => {
-        const place = autocomplete.getPlace();
-        
-        if (!place.geometry) {
-          console.log("Adresse non sélectionnée dans la liste");
-          return;
-        }
+    // Quand l'utilisateur clique sur une suggestion
+    autocomplete.addListener("place_changed", () => {
+      const place = autocomplete.getPlace();
+      const address = place.formatted_address || place.name || "";
+      
+      setInputValue(address);
+      onSearch(address); // On lance la recherche automatiquement
+    });
+  }, [onSearch]);
 
-        // C'est ici que tu récupéreras les infos pour la météo plus tard
-        console.log("Adresse choisie :", place.name);
-        console.log("Lat/Lng :", place.geometry.location.lat(), place.geometry.location.lng());
-        
-        // Mise à jour de l'état local
-        setAddress(place.name);
-      });
-    }
-  }, []);
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSearch(inputValue);
+  };
 
   return (
-    <div className="flex w-full max-w-2xl bg-white rounded-full shadow-xl overflow-hidden border border-gray-100 p-1">
+    <form onSubmit={handleSubmit} className="relative w-full max-w-lg z-40">
       <input
         ref={inputRef}
         type="text"
-        className="flex-grow px-6 py-3 text-gray-700 placeholder-gray-400 focus:outline-none text-lg"
         placeholder="Entrez votre adresse (ex: 123 Rue Principale)..."
-        defaultValue={address} // Utilise defaultValue pour laisser Google gérer l'input
+        value={inputValue}
+        onChange={(e) => setInputValue(e.target.value)}
+        className="w-full pl-12 pr-4 py-4 rounded-full border-2 border-gray-200 focus:border-blue-500 focus:outline-none shadow-sm text-gray-700"
       />
-      <button className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-full font-semibold transition-colors duration-300 shadow-md">
+      <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
+      
+      <button 
+        type="submit" 
+        className="absolute right-2 top-2 bottom-2 bg-blue-600 text-white px-6 rounded-full font-bold hover:bg-blue-700 transition"
+      >
         Voir
       </button>
-    </div>
+    </form>
   );
 }
