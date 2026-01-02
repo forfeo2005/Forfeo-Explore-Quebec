@@ -9,7 +9,7 @@ const Header: React.FC = () => {
 
   const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng);
-    setIsLangMenuOpen(false); // Ferme le menu après le choix
+    setIsLangMenuOpen(false);
   };
 
   const languages = [
@@ -21,6 +21,7 @@ const Header: React.FC = () => {
   ];
 
   return (
+    // Ajout de z-50 ici pour s'assurer que toute la barre est au-dessus
     <header className="bg-gradient-to-r from-blue-900 to-blue-600 text-white shadow-lg sticky top-0 z-50 font-sans">
       <div className="container mx-auto px-4 py-3 flex justify-between items-center">
         
@@ -47,12 +48,15 @@ const Header: React.FC = () => {
               className="flex items-center space-x-1 border border-white/30 px-3 py-1 rounded-full hover:bg-white/10 transition-colors focus:outline-none"
             >
               <FaGlobe size={14} />
-              <span className="text-sm uppercase font-bold">{i18n.language.split('-')[0]}</span>
+              <span className="text-sm uppercase font-bold">{i18n.language ? i18n.language.split('-')[0] : 'FR'}</span>
             </button>
             
-            {/* Menu déroulant langues - CORRIGÉ */}
+            {/* Menu déroulant langues - Z-INDEX FORCÉ */}
             {isLangMenuOpen && (
-              <div className="absolute right-0 mt-2 w-40 bg-white text-gray-800 rounded-lg shadow-2xl py-2 border border-gray-100 z-[100]">
+              <div 
+                className="absolute right-0 mt-2 w-40 bg-white text-gray-800 rounded-lg shadow-2xl py-2 border border-gray-100"
+                style={{ zIndex: 9999 }} // <--- C'est la solution magique
+              >
                 {languages.map((lang) => (
                   <button
                     key={lang.code}
@@ -67,7 +71,7 @@ const Header: React.FC = () => {
           </div>
         </nav>
 
-        {/* Menu Mobile Button */}
+        {/* Menu Mobile */}
         <button 
           className="md:hidden text-white focus:outline-none"
           onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -76,7 +80,6 @@ const Header: React.FC = () => {
         </button>
       </div>
 
-      {/* Mobile Menu */}
       {isMenuOpen && (
         <div className="md:hidden bg-blue-900 border-t border-blue-800 shadow-xl">
           <div className="flex flex-col p-4 space-y-4">
