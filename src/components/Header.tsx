@@ -25,7 +25,7 @@ export default function Header() {
              <FaMapMarkedAlt size={24} />
           </div>
           <span className="text-xl md:text-2xl font-bold tracking-tight">
-            Forfeo <span className="text-blue-200 font-light">Explore Québec</span>
+            Forfeo <span className="text-blue-200 font-light">Explore</span>
           </span>
         </Link>
 
@@ -33,9 +33,10 @@ export default function Header() {
         <nav className="hidden md:flex items-center space-x-8">
           <Link to="/" className="hover:text-yellow-300 font-medium transition-colors">Accueil</Link>
           <Link to="/regions" className="hover:text-yellow-300 font-medium transition-colors">Régions</Link>
+          {/* Lien vers l'ancre #carte sur la page d'accueil */}
           <a href="/#carte" className="hover:text-yellow-300 font-medium transition-colors">Carte Interactive</a>
           
-          {/* SÉLECTEUR DE LANGUE (Réparé) */}
+          {/* SÉLECTEUR DE LANGUE */}
           <div className="relative">
             <button 
               onClick={() => setIsLangMenuOpen(!isLangMenuOpen)}
@@ -48,7 +49,7 @@ export default function Header() {
 
             {/* Menu Déroulant */}
             {isLangMenuOpen && (
-              <div className="absolute right-0 mt-2 w-40 bg-white text-gray-800 rounded-lg shadow-xl py-2 border border-gray-100 animate-fade-in-down">
+              <div className="absolute right-0 mt-2 w-40 bg-white text-gray-800 rounded-lg shadow-xl py-2 border border-gray-100">
                 {languages.map((lang) => (
                   <button
                     key={lang.code}
@@ -66,19 +67,20 @@ export default function Header() {
           </div>
         </nav>
 
-        {/* MENU MOBILE */}
+        {/* MENU MOBILE (Hamburger) */}
         <button className="md:hidden" onClick={() => setIsMenuOpen(!isMenuOpen)}>
           {isMenuOpen ? <FaTimes size={28} /> : <FaBars size={28} />}
         </button>
       </div>
 
-      {/* LISTE MENU MOBILE */}
+      {/* LISTE MENU MOBILE (Ouvert) */}
       {isMenuOpen && (
         <div className="md:hidden bg-blue-900 border-t border-blue-800 p-4 space-y-4">
           <Link to="/" className="block text-lg hover:text-yellow-300" onClick={() => setIsMenuOpen(false)}>Accueil</Link>
           <Link to="/regions" className="block text-lg hover:text-yellow-300" onClick={() => setIsMenuOpen(false)}>Régions</Link>
           <a href="/#carte" className="block text-lg hover:text-yellow-300" onClick={() => setIsMenuOpen(false)}>Carte</a>
           
+          {/* Langues Mobile */}
           <div className="pt-4 border-t border-blue-800">
             <p className="text-xs text-blue-300 mb-2 uppercase">Langue</p>
             <div className="flex flex-wrap gap-2">
